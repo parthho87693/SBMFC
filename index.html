@@ -1,0 +1,1208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SBMFC — Sylhet Band Music Fans Community</title>
+<meta name="description" content="SBMFC is a Sylhet-born music community and promotional partner connecting audiences, artists, bands and the live music scene since 2019.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&display=swap" rel="stylesheet">
+<style>
+/* ============================================================
+   SBMFC — TOKENS
+   ============================================================ */
+:root{
+  --black:#050505;
+  --charcoal:#101010;
+  --charcoal-2:#161414;
+  --dark-red:#6E0808;
+  --red:#D71920;
+  --off-white:#F3F1EC;
+  --gray:#B8B8B8;
+  --gray-dim:#7d7a76;
+  --line: rgba(243,241,236,0.12);
+  --display: 'Anton', 'Impact', sans-serif;
+  --body: 'Inter', -apple-system, sans-serif;
+  --ease: cubic-bezier(.16,.84,.44,1);
+  --container: 1240px;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{
+  background:var(--black);
+  color:var(--off-white);
+  font-family:var(--body);
+  line-height:1.6;
+  overflow-x:hidden;
+  -webkit-font-smoothing:antialiased;
+}
+img{max-width:100%;display:block;}
+a{color:inherit;text-decoration:none;}
+ul{list-style:none;}
+button{font-family:inherit;cursor:pointer;border:none;background:none;color:inherit;}
+.wrap{max-width:var(--container);margin:0 auto;padding:0 32px;}
+::selection{background:var(--red);color:var(--off-white);}
+
+/* grain overlay */
+.grain{
+  position:fixed;inset:0;pointer-events:none;z-index:9998;
+  opacity:.05;mix-blend-mode:overlay;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* cursor glow (desktop) */
+.cursor-glow{
+  position:fixed;width:420px;height:420px;border-radius:50%;
+  background:radial-gradient(circle, rgba(215,25,32,.10) 0%, rgba(215,25,32,0) 70%);
+  pointer-events:none;z-index:9997;transform:translate(-50%,-50%);
+  transition:opacity .3s;
+}
+
+.eyebrow{
+  font-family:var(--body);font-weight:700;font-size:12px;letter-spacing:.28em;
+  text-transform:uppercase;color:var(--red);display:inline-flex;align-items:center;gap:10px;
+  margin-bottom:18px;
+}
+.eyebrow::before{content:"";width:26px;height:2px;background:var(--red);display:inline-block;}
+
+.h-display{
+  font-family:var(--display);
+  text-transform:uppercase;
+  letter-spacing:.01em;
+  line-height:.96;
+  font-weight:400;
+}
+.section-title{font-size:clamp(34px,5vw,64px);}
+.reveal{opacity:0;transform:translateY(28px);transition:opacity .8s var(--ease), transform .8s var(--ease);}
+.reveal.in{opacity:1;transform:translateY(0);}
+.reveal-stagger > *{opacity:0;transform:translateY(24px);transition:opacity .7s var(--ease), transform .7s var(--ease);}
+.reveal-stagger.in > *{opacity:1;transform:translateY(0);}
+.reveal-stagger.in > *:nth-child(1){transition-delay:.05s}
+.reveal-stagger.in > *:nth-child(2){transition-delay:.12s}
+.reveal-stagger.in > *:nth-child(3){transition-delay:.19s}
+.reveal-stagger.in > *:nth-child(4){transition-delay:.26s}
+.reveal-stagger.in > *:nth-child(5){transition-delay:.33s}
+.reveal-stagger.in > *:nth-child(6){transition-delay:.40s}
+
+.btn{
+  position:relative;display:inline-flex;align-items:center;gap:10px;
+  font-size:13px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;
+  padding:17px 30px;border:1px solid var(--off-white);color:var(--off-white);
+  overflow:hidden;isolation:isolate;transition:color .35s var(--ease), border-color .35s var(--ease);
+}
+.btn::before{
+  content:"";position:absolute;inset:0;background:var(--red);z-index:-1;
+  transform:translateY(101%);transition:transform .4s var(--ease);
+}
+.btn:hover{border-color:var(--red);}
+.btn:hover::before{transform:translateY(0);}
+.btn-solid{background:var(--red);border-color:var(--red);}
+.btn-solid::before{background:var(--off-white);}
+.btn-solid:hover{color:var(--black);border-color:var(--off-white);}
+.btn-ghost{border-color:var(--line);}
+.btn-ghost::before{background:transparent;}
+.btn-ghost:hover{border-color:var(--red);color:var(--red);}
+
+/* magnetic button wrapper handled via JS transform, class below just for cursor */
+.magnetic{will-change:transform;}
+
+.tag{
+  display:inline-block;font-size:10.5px;font-weight:700;letter-spacing:.16em;
+  text-transform:uppercase;padding:6px 10px;border:1px solid currentColor;
+}
+.tag-partner{color:var(--red);border-color:var(--red);background:rgba(215,25,32,.08);}
+.tag-archive{color:var(--gray);border-color:var(--line);}
+
+/* ============================================================
+   NAV
+   ============================================================ */
+.nav{
+  position:fixed;top:0;left:0;right:0;z-index:1000;
+  padding:22px 0;transition:background .4s var(--ease), padding .4s var(--ease), backdrop-filter .4s var(--ease), border-color .4s var(--ease);
+  border-bottom:1px solid transparent;
+}
+.nav.scrolled{
+  background:rgba(5,5,5,.82);backdrop-filter:blur(14px);
+  padding:14px 0;border-color:var(--line);
+}
+.nav .wrap{display:flex;align-items:center;justify-content:space-between;}
+.nav-logo{display:flex;align-items:center;gap:12px;}
+.nav-logo img{height:36px;width:auto;}
+.nav-logo span{font-family:var(--display);font-size:20px;letter-spacing:.04em;}
+.nav-links{display:flex;align-items:center;gap:34px;}
+.nav-links a{
+  font-size:12.5px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--gray);position:relative;padding:4px 0;transition:color .3s;
+}
+.nav-links a::after{
+  content:"";position:absolute;left:0;bottom:0;width:0;height:1px;background:var(--red);
+  transition:width .35s var(--ease);
+}
+.nav-links a:hover{color:var(--off-white);}
+.nav-links a:hover::after{width:100%;}
+.nav-cta{display:flex;align-items:center;gap:20px;}
+.nav-cta .btn{padding:12px 22px;font-size:11px;}
+.nav-toggle{display:none;flex-direction:column;gap:5px;width:30px;z-index:1100;}
+.nav-toggle span{height:2px;background:var(--off-white);transition:transform .3s,opacity .3s;}
+
+/* mobile fullscreen menu */
+.mobile-menu{
+  position:fixed;inset:0;background:var(--black);z-index:1050;
+  display:flex;flex-direction:column;justify-content:center;padding:0 40px;
+  transform:translateY(-100%);transition:transform .55s var(--ease);
+}
+.mobile-menu.open{transform:translateY(0);}
+.mobile-menu a{
+  font-family:var(--display);font-size:38px;text-transform:uppercase;
+  padding:12px 0;border-bottom:1px solid var(--line);color:var(--off-white);
+}
+.mobile-menu .btn{margin-top:28px;width:fit-content;}
+
+/* ============================================================
+   HERO
+   ============================================================ */
+.hero{
+  position:relative;min-height:100svh;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;text-align:center;
+  overflow:hidden;padding:140px 24px 80px;
+}
+.hero-bg{
+  position:absolute;inset:0;z-index:0;
+  background:
+    radial-gradient(ellipse 70% 55% at 50% 18%, rgba(110,8,8,.55), transparent 60%),
+    radial-gradient(ellipse 60% 50% at 15% 85%, rgba(215,25,32,.18), transparent 65%),
+    radial-gradient(ellipse 60% 50% at 85% 80%, rgba(215,25,32,.12), transparent 65%),
+    linear-gradient(180deg, #050505 0%, #0c0808 55%, #050505 100%);
+}
+.hero-beams{position:absolute;inset:0;z-index:0;opacity:.5;mix-blend-mode:screen;}
+.hero-beams span{
+  position:absolute;top:-10%;width:2px;height:120%;
+  background:linear-gradient(180deg, rgba(215,25,32,0) 0%, rgba(215,25,32,.5) 45%, rgba(215,25,32,0) 100%);
+  animation:sway 9s ease-in-out infinite;
+}
+.hero-beams span:nth-child(1){left:18%;animation-delay:0s;transform:rotate(8deg);}
+.hero-beams span:nth-child(2){left:38%;animation-delay:1.5s;transform:rotate(-6deg);}
+.hero-beams span:nth-child(3){left:62%;animation-delay:.7s;transform:rotate(4deg);}
+.hero-beams span:nth-child(4){left:82%;animation-delay:2.2s;transform:rotate(-9deg);}
+@keyframes sway{0%,100%{opacity:.25;transform:translateX(0) rotate(6deg);}50%{opacity:.7;transform:translateX(30px) rotate(-4deg);}}
+
+.hero-content{position:relative;z-index:2;max-width:920px;display:flex;flex-direction:column;align-items:center;}
+.hero-logo{height:76px;width:auto;margin-bottom:36px;opacity:0;animation:fadeUp 1s var(--ease) .15s forwards;}
+.hero h1{
+  font-size:clamp(48px,10vw,132px);letter-spacing:.005em;
+  opacity:0;animation:fadeUp 1s var(--ease) .3s forwards;
+}
+.hero h1 .accent{color:var(--red);}
+.hero-sub{
+  font-family:var(--display);font-size:clamp(16px,2.2vw,26px);text-transform:uppercase;
+  letter-spacing:.03em;color:var(--off-white);margin-top:20px;max-width:700px;
+  opacity:0;animation:fadeUp 1s var(--ease) .45s forwards;
+}
+.hero-p{
+  font-size:16px;color:var(--gray);max-width:560px;margin:22px auto 0;
+  opacity:0;animation:fadeUp 1s var(--ease) .6s forwards;
+}
+.hero-actions{
+  display:flex;gap:16px;flex-wrap:wrap;justify-content:center;margin-top:44px;
+  opacity:0;animation:fadeUp 1s var(--ease) .75s forwards;
+}
+@keyframes fadeUp{from{opacity:0;transform:translateY(24px);}to{opacity:1;transform:translateY(0);}}
+
+.eq{display:flex;align-items:flex-end;gap:4px;height:26px;margin-top:46px;opacity:0;animation:fadeUp 1s var(--ease) .9s forwards;}
+.eq span{width:4px;background:var(--red);border-radius:1px;animation:eqbounce 1.1s ease-in-out infinite;}
+.eq span:nth-child(1){height:40%;animation-delay:-1.1s;}
+.eq span:nth-child(2){height:80%;animation-delay:-0.9s;}
+.eq span:nth-child(3){height:55%;animation-delay:-0.7s;}
+.eq span:nth-child(4){height:100%;animation-delay:-0.5s;}
+.eq span:nth-child(5){height:65%;animation-delay:-0.3s;}
+.eq span:nth-child(6){height:35%;animation-delay:-0.15s;}
+.eq span:nth-child(7){height:75%;animation-delay:0s;}
+@keyframes eqbounce{0%,100%{transform:scaleY(.4);}50%{transform:scaleY(1);}}
+
+.scroll-cue{
+  position:absolute;bottom:34px;left:50%;transform:translateX(-50%);z-index:2;
+  display:flex;flex-direction:column;align-items:center;gap:10px;
+  font-size:10.5px;letter-spacing:.24em;text-transform:uppercase;color:var(--gray-dim);
+  opacity:0;animation:fadeUp 1s var(--ease) 1.1s forwards;
+}
+.scroll-cue .line{width:1px;height:34px;background:linear-gradient(var(--red), transparent);animation:scrolldown 1.8s ease-in-out infinite;}
+@keyframes scrolldown{0%{transform:scaleY(0);transform-origin:top;}50%{transform:scaleY(1);transform-origin:top;}51%{transform-origin:bottom;}100%{transform:scaleY(0);transform-origin:bottom;}}
+
+/* ============================================================
+   SECTION SHARED
+   ============================================================ */
+section{position:relative;padding:130px 0;}
+.section-alt{background:var(--charcoal);}
+.section-head{max-width:760px;margin-bottom:64px;}
+.section-head p{color:var(--gray);font-size:16.5px;max-width:560px;margin-top:16px;}
+.divider{height:1px;background:var(--line);width:100%;}
+
+/* WHO WE ARE */
+.who-grid{display:grid;grid-template-columns:1.1fr .9fr;gap:70px;align-items:start;}
+.who-grid p{color:var(--gray);font-size:17px;margin-bottom:18px;max-width:560px;}
+.who-grid p.lead{color:var(--off-white);font-size:20px;font-style:italic;font-family:var(--body);}
+.stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--line);border:1px solid var(--line);}
+.stat-cell{background:var(--black);padding:30px 26px;}
+.stat-cell .num{font-family:var(--display);font-size:32px;color:var(--red);}
+.stat-cell .lbl{font-size:12px;letter-spacing:.08em;color:var(--gray);text-transform:uppercase;margin-top:6px;}
+
+/* TIMELINE */
+.timeline{position:relative;margin-top:20px;}
+.timeline::before{
+  content:"";position:absolute;left:120px;top:0;bottom:0;width:1px;
+  background:linear-gradient(var(--line), var(--red), var(--line));
+}
+.tl-item{position:relative;display:grid;grid-template-columns:120px 1fr;gap:36px;padding:38px 0;}
+.tl-item + .tl-item{border-top:1px solid var(--line);}
+.tl-year{font-family:var(--display);font-size:20px;color:var(--red);padding-top:2px;}
+.tl-dot{
+  position:absolute;left:116px;top:44px;width:9px;height:9px;border-radius:50%;
+  background:var(--red);box-shadow:0 0 0 4px rgba(215,25,32,.15);
+}
+.tl-body h3{font-family:var(--display);font-size:clamp(20px,2.4vw,28px);letter-spacing:.02em;margin-bottom:12px;}
+.tl-body p{color:var(--gray);font-size:15.5px;max-width:620px;}
+
+/* SHOWS / FILTER */
+.filter-bar{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:48px;}
+.filter-btn{
+  padding:9px 18px;border:1px solid var(--line);font-size:11.5px;font-weight:700;
+  letter-spacing:.1em;text-transform:uppercase;color:var(--gray);transition:all .3s var(--ease);
+}
+.filter-btn:hover{border-color:var(--red);color:var(--off-white);}
+.filter-btn.active{background:var(--red);border-color:var(--red);color:var(--off-white);}
+
+.poster-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:28px;}
+.poster-card{
+  position:relative;border:1px solid var(--line);background:var(--charcoal-2);
+  overflow:hidden;transition:transform .5s var(--ease), opacity .4s var(--ease), border-color .4s;
+  cursor:pointer;
+}
+.poster-card.hide{display:none;}
+.poster-card:hover{transform:translateY(-6px);border-color:rgba(215,25,32,.4);}
+.poster-media{position:relative;aspect-ratio:3/4;overflow:hidden;background:
+  repeating-linear-gradient(135deg, #161414 0 2px, #1b1717 2px 4px);}
+.poster-media img{width:100%;height:100%;object-fit:cover;transition:transform .7s var(--ease), filter .5s;filter:grayscale(.25) contrast(1.05);}
+.poster-card:hover .poster-media img{transform:scale(1.08);filter:grayscale(0) contrast(1.1);}
+.poster-media .glow{position:absolute;inset:0;background:linear-gradient(0deg, rgba(5,5,5,.92) 0%, rgba(5,5,5,.15) 55%, transparent 100%);}
+.poster-media .view{
+  position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+  background:rgba(5,5,5,.55);opacity:0;transition:opacity .35s var(--ease);
+}
+.poster-card:hover .poster-media .view{opacity:1;}
+.view span{
+  font-size:12px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;
+  border:1px solid var(--off-white);padding:12px 22px;
+}
+.poster-tags{position:absolute;top:14px;left:14px;display:flex;gap:8px;z-index:2;}
+.poster-info{padding:20px 20px 22px;}
+.poster-info h3{font-family:var(--display);font-size:21px;letter-spacing:.02em;margin-bottom:8px;}
+.poster-info .meta{font-size:12.5px;color:var(--gray);display:flex;flex-direction:column;gap:3px;}
+.poster-info .meta b{color:var(--off-white);font-weight:600;}
+
+/* image placeholder fallback */
+.img-missing .poster-media{display:flex;align-items:center;justify-content:center;}
+.img-missing .poster-media img{display:none;}
+.img-missing .poster-media::after{
+  content:"POSTER\A ARTWORK\A PENDING";
+  white-space:pre-line;text-align:center;font-family:var(--display);
+  font-size:15px;letter-spacing:.08em;color:var(--gray-dim);line-height:1.5;
+  border:1px dashed var(--line);padding:22px 16px;
+}
+.img-missing .poster-media .glow,.img-missing .poster-media .view{z-index:1;}
+
+.archive-note{
+  margin-top:40px;padding:22px 26px;border:1px dashed var(--line);color:var(--gray);
+  font-size:14px;text-align:center;
+}
+
+/* PARTNERSHIP */
+.partner-grid{display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:center;}
+.partner-copy p{color:var(--gray);font-size:16.5px;margin-bottom:20px;max-width:520px;}
+.partner-visual{
+  border:1px solid var(--line);padding:40px;background:
+  linear-gradient(160deg, rgba(215,25,32,.08), transparent 60%), var(--charcoal-2);
+}
+.partner-visual .pv-row{display:flex;align-items:center;justify-content:space-between;padding:16px 0;border-bottom:1px solid var(--line);}
+.partner-visual .pv-row:last-child{border-bottom:none;}
+.partner-visual .pv-row span:first-child{font-size:14px;color:var(--gray);}
+.partner-visual .pv-row span:last-child{font-family:var(--display);font-size:14px;letter-spacing:.05em;}
+
+/* SERVICES */
+.svc-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--line);border:1px solid var(--line);}
+.svc-card{background:var(--black);padding:40px 32px;transition:background .4s var(--ease);}
+.svc-card:hover{background:var(--charcoal-2);}
+.svc-num{font-family:var(--display);font-size:13px;color:var(--red);letter-spacing:.1em;margin-bottom:20px;}
+.svc-card h3{font-family:var(--display);font-size:21px;letter-spacing:.02em;margin-bottom:12px;}
+.svc-card p{color:var(--gray);font-size:14.5px;}
+
+/* NETWORK */
+.network-track{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--line);border:1px solid var(--line);margin-top:56px;}
+.network-cell{background:var(--charcoal);padding:44px 24px;text-align:center;}
+.network-cell .n-top{font-family:var(--display);font-size:clamp(22px,3vw,34px);color:var(--off-white);letter-spacing:.02em;}
+.network-cell .n-bot{font-size:11.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--red);margin-top:10px;}
+
+/* ARTISTS */
+.artist-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:1px;background:var(--line);border:1px solid var(--line);margin-top:20px;}
+.artist-cell{
+  background:var(--charcoal-2);aspect-ratio:1;display:flex;align-items:center;justify-content:center;
+  text-align:center;padding:20px;filter:grayscale(1);transition:filter .4s, background .4s;
+}
+.artist-cell:hover{filter:grayscale(0);background:rgba(215,25,32,.08);}
+.artist-cell span{font-family:var(--display);font-size:16px;letter-spacing:.02em;color:var(--off-white);}
+
+/* MUSIC ADDA */
+.adda{
+  position:relative;padding:150px 0;text-align:center;overflow:hidden;
+  background:radial-gradient(ellipse 60% 80% at 50% 50%, rgba(110,8,8,.28), transparent 70%), var(--black);
+}
+.adda h2{font-size:clamp(38px,7vw,88px);}
+.adda .sub{font-family:var(--display);font-size:clamp(16px,2vw,22px);color:var(--red);text-transform:uppercase;margin-top:18px;}
+.adda-list{display:flex;flex-wrap:wrap;gap:14px;justify-content:center;margin-top:48px;}
+.adda-list span{
+  padding:12px 20px;border:1px solid var(--line);font-size:13px;letter-spacing:.06em;
+  text-transform:uppercase;color:var(--gray);transition:all .3s;
+}
+.adda-list span:hover{color:var(--off-white);border-color:var(--red);}
+.adda-eq{display:flex;justify-content:center;gap:5px;height:60px;align-items:flex-end;margin-top:60px;opacity:.6;}
+.adda-eq span{width:5px;background:var(--red);animation:eqbounce 1.3s ease-in-out infinite;}
+
+/* GALLERY */
+.gal-cats{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:40px;}
+.gallery-grid{display:grid;grid-template-columns:repeat(4,1fr);grid-auto-rows:200px;gap:14px;}
+.gallery-grid .g-item{grid-column:span 1;grid-row:span 1;}
+.gallery-grid .g-item.tall{grid-row:span 2;}
+.gallery-grid .g-item.wide{grid-column:span 2;}
+.g-item{position:relative;overflow:hidden;border:1px solid var(--line);cursor:pointer;background:var(--charcoal-2);}
+.g-item img{width:100%;height:100%;object-fit:cover;filter:grayscale(.3);transition:transform .6s var(--ease), filter .5s;}
+.g-item:hover img{transform:scale(1.1);filter:grayscale(0);}
+.g-item .g-cap{
+  position:absolute;left:0;right:0;bottom:0;padding:14px 16px;
+  background:linear-gradient(0deg, rgba(5,5,5,.9), transparent);
+  font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--off-white);
+  transform:translateY(8px);opacity:0;transition:all .35s var(--ease);
+}
+.g-item:hover .g-cap{transform:translateY(0);opacity:1;}
+.g-item.img-missing{display:flex;align-items:center;justify-content:center;}
+.g-item.img-missing img{display:none;}
+.g-item.img-missing::after{content:"IMAGE\A PENDING";white-space:pre-line;text-align:center;font-family:var(--display);font-size:12px;letter-spacing:.1em;color:var(--gray-dim);}
+
+/* FEATURED STORY */
+.story{
+  padding:150px 0;position:relative;
+  background:linear-gradient(180deg, var(--black), #0a0707 50%, var(--black));
+}
+.story .wrap{max-width:920px;text-align:center;}
+.story h2{font-size:clamp(30px,5.2vw,54px);margin-bottom:36px;}
+.story p{font-size:clamp(17px,2vw,21px);color:var(--gray);line-height:1.85;margin-bottom:22px;font-style:italic;}
+.story p:last-of-type{color:var(--off-white);font-style:normal;font-family:var(--display);text-transform:uppercase;font-size:clamp(18px,2.4vw,24px);margin-top:40px;}
+
+/* WHY */
+.pillars{display:grid;grid-template-columns:repeat(3,1fr);gap:40px;margin-top:20px;}
+.pillar{padding:36px 0;border-top:2px solid var(--red);}
+.pillar h3{font-family:var(--display);font-size:22px;letter-spacing:.04em;margin-bottom:14px;}
+.pillar p{color:var(--gray);font-size:15px;}
+
+/* CTA */
+.cta-section{
+  padding:150px 0;text-align:center;position:relative;
+  background:radial-gradient(ellipse 80% 90% at 50% 100%, rgba(215,25,32,.14), transparent 65%), var(--charcoal);
+}
+.cta-section h2{font-size:clamp(38px,7.5vw,96px);}
+.cta-section p{color:var(--gray);max-width:560px;margin:22px auto 40px;font-size:16.5px;}
+.cta-actions{display:flex;gap:16px;justify-content:center;flex-wrap:wrap;}
+
+/* CONTACT */
+.contact-grid{display:grid;grid-template-columns:1fr 1fr;gap:70px;}
+.contact-left h2{font-size:clamp(30px,4.6vw,48px);margin-bottom:16px;}
+.contact-left .line{font-style:italic;color:var(--gray);font-size:17px;margin-bottom:36px;}
+.contact-links a{
+  display:flex;justify-content:space-between;align-items:center;padding:18px 0;
+  border-bottom:1px solid var(--line);font-size:15px;transition:padding-left .3s var(--ease), color .3s;
+}
+.contact-links a:hover{padding-left:10px;color:var(--red);}
+.contact-links a span:last-child{color:var(--gray-dim);font-size:13px;}
+.contact-form{display:flex;flex-direction:column;gap:16px;}
+.contact-form input,.contact-form textarea{
+  background:transparent;border:1px solid var(--line);color:var(--off-white);
+  padding:16px 18px;font-family:var(--body);font-size:14.5px;transition:border-color .3s;
+}
+.contact-form input:focus,.contact-form textarea:focus{outline:none;border-color:var(--red);}
+.contact-form textarea{resize:vertical;min-height:110px;}
+.contact-form ::placeholder{color:var(--gray-dim);}
+
+/* FOOTER */
+footer{padding:80px 0 34px;border-top:1px solid var(--line);}
+.footer-top{display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:40px;padding-bottom:56px;}
+.footer-brand{display:flex;align-items:center;gap:16px;}
+.footer-brand img{height:52px;}
+.footer-brand-text{font-family:var(--display);font-size:15px;letter-spacing:.05em;color:var(--gray);max-width:200px;}
+.footer-nav{display:flex;flex-wrap:wrap;gap:28px;}
+.footer-nav a{font-size:12.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--gray);transition:color .3s;}
+.footer-nav a:hover{color:var(--red);}
+.footer-social{display:flex;gap:16px;}
+.footer-social a{
+  width:38px;height:38px;border:1px solid var(--line);border-radius:50%;
+  display:flex;align-items:center;justify-content:center;font-size:12px;transition:all .3s;
+}
+.footer-social a:hover{border-color:var(--red);color:var(--red);}
+.footer-bottom{
+  display:flex;justify-content:space-between;flex-wrap:wrap;gap:14px;
+  padding-top:28px;border-top:1px solid var(--line);
+  font-size:12px;color:var(--gray-dim);letter-spacing:.03em;
+}
+
+/* MODAL */
+.modal-backdrop{
+  position:fixed;inset:0;background:rgba(5,5,5,.88);backdrop-filter:blur(6px);
+  z-index:2000;display:flex;align-items:center;justify-content:center;padding:30px;
+  opacity:0;pointer-events:none;transition:opacity .4s var(--ease);
+}
+.modal-backdrop.open{opacity:1;pointer-events:all;}
+.modal{
+  background:var(--charcoal);border:1px solid var(--line);max-width:880px;width:100%;
+  max-height:88vh;overflow:auto;display:grid;grid-template-columns:1fr 1.2fr;
+  transform:scale(.94) translateY(20px);transition:transform .45s var(--ease);
+}
+.modal-backdrop.open .modal{transform:scale(1) translateY(0);}
+.modal-media{aspect-ratio:3/4;background:repeating-linear-gradient(135deg,#161414 0 2px,#1b1717 2px 4px);position:relative;}
+.modal-media img{width:100%;height:100%;object-fit:cover;}
+.modal-body{padding:44px 40px;position:relative;}
+.modal-close{position:absolute;top:20px;right:24px;font-size:26px;color:var(--gray);transition:color .3s;line-height:1;}
+.modal-close:hover{color:var(--red);}
+.modal-body h3{font-family:var(--display);font-size:30px;letter-spacing:.02em;margin:10px 0 20px;}
+.modal-field{padding:12px 0;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;gap:20px;font-size:14px;}
+.modal-field span:first-child{color:var(--gray-dim);text-transform:uppercase;letter-spacing:.08em;font-size:11.5px;}
+.modal-field span:last-child{text-align:right;color:var(--off-white);}
+.modal-desc{margin-top:22px;color:var(--gray);font-size:14.5px;line-height:1.8;}
+.modal-back{margin-top:30px;}
+
+@media(max-width:1000px){
+  .who-grid,.partner-grid,.contact-grid{grid-template-columns:1fr;gap:44px;}
+  .poster-grid{grid-template-columns:repeat(2,1fr);}
+  .svc-grid{grid-template-columns:repeat(2,1fr);}
+  .network-track{grid-template-columns:repeat(2,1fr);}
+  .artist-grid{grid-template-columns:repeat(3,1fr);}
+  .gallery-grid{grid-template-columns:repeat(2,1fr);}
+  .pillars{grid-template-columns:1fr;gap:0;}
+  .modal{grid-template-columns:1fr;}
+  .modal-media{aspect-ratio:16/9;}
+}
+@media(max-width:760px){
+  .nav-links,.nav-cta .btn-ghost{display:none;}
+  .nav-toggle{display:flex;}
+  section{padding:90px 0;}
+  .poster-grid{grid-template-columns:1fr;}
+  .svc-grid{grid-template-columns:1fr;}
+  .network-track{grid-template-columns:1fr 1fr;}
+  .artist-grid{grid-template-columns:repeat(2,1fr);}
+  .gallery-grid{grid-template-columns:repeat(2,1fr);grid-auto-rows:150px;}
+  .timeline::before{left:14px;}
+  .tl-item{grid-template-columns:28px 1fr;gap:20px;}
+  .tl-dot{left:10px;}
+  .tl-year{writing-mode:vertical-rl;font-size:13px;}
+  .cursor-glow{display:none;}
+  .footer-top{flex-direction:column;}
+}
+@media(prefers-reduced-motion: reduce){
+  *{animation-duration:.01ms !important;animation-iteration-count:1 !important;transition-duration:.01ms !important;scroll-behavior:auto !important;}
+}
+</style>
+</head>
+<body>
+
+<div class="grain"></div>
+<div class="cursor-glow" id="cursorGlow"></div>
+
+<!-- ============ NAV ============ -->
+<nav class="nav" id="nav">
+  <div class="wrap">
+    <a href="#home" class="nav-logo">
+      <img src="assets/logo.png" alt="SBMFC logo">
+      <span>SBMFC</span>
+    </a>
+    <ul class="nav-links">
+      <li><a href="#home">Home</a></li>
+      <li><a href="#story">Our Story</a></li>
+      <li><a href="#journey">Our Journey</a></li>
+      <li><a href="#shows">Shows</a></li>
+      <li><a href="#partnerships">Partnerships</a></li>
+      <li><a href="#artists">Artists &amp; Bands</a></li>
+      <li><a href="#gallery">Gallery</a></li>
+      <li><a href="#contact">Contact</a></li>
+    </ul>
+    <div class="nav-cta">
+      <a href="#contact" class="btn btn-ghost magnetic">Work With SBMFC</a>
+    </div>
+    <button class="nav-toggle" id="navToggle" aria-label="Open menu">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</nav>
+
+<div class="mobile-menu" id="mobileMenu">
+  <a href="#home">Home</a>
+  <a href="#story">Our Story</a>
+  <a href="#journey">Our Journey</a>
+  <a href="#shows">Shows</a>
+  <a href="#partnerships">Partnerships</a>
+  <a href="#artists">Artists &amp; Bands</a>
+  <a href="#gallery">Gallery</a>
+  <a href="#contact">Contact</a>
+  <a href="#contact" class="btn btn-solid">Work With SBMFC</a>
+</div>
+
+<!-- ============ HERO ============ -->
+<header class="hero" id="home">
+  <div class="hero-bg"></div>
+  <div class="hero-beams"><span></span><span></span><span></span><span></span></div>
+  <div class="hero-content">
+    <img src="assets/logo.png" alt="SBMFC — Sylhet Band Music Fans Community" class="hero-logo">
+    <h1 class="h-display">WE LIVE<br><span class="accent">THE MUSIC.</span></h1>
+    <p class="hero-sub">Born in Sylhet. Built by music lovers. Connected by the scene.</p>
+    <p class="hero-p">Since 2019, SBMFC has grown from a student-led music community into a platform connecting audiences, artists, bands and live music experiences.</p>
+    <div class="hero-actions">
+      <a href="#journey" class="btn btn-solid magnetic">Explore Our Journey</a>
+      <a href="#shows" class="btn btn-ghost magnetic">Our Shows</a>
+    </div>
+    <div class="eq"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
+  </div>
+  <div class="scroll-cue"><span>Scroll to Explore</span><span class="line"></span></div>
+</header>
+
+<!-- ============ WHO WE ARE ============ -->
+<section id="story">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <div class="eyebrow">Who We Are</div>
+      <h2 class="h-display section-title">MORE THAN A<br>MUSIC COMMUNITY.</h2>
+    </div>
+    <div class="who-grid">
+      <div class="reveal">
+        <p class="lead">SBMFC was born from a simple idea — music brings people together.</p>
+        <p>It began in June 2019, when a group of school students in Sylhet, united by a genuine love for music, came together to stay close to the city's evolving music scene. What started as a small circle built around a shared passion gradually became something much larger.</p>
+        <p>Over the years, SBMFC has worked alongside numerous bands, musical clubs, organizers and artists as a promotional partner — helping audiences discover upcoming shows, concerts, releases and music-related activities across Sylhet and beyond.</p>
+        <p>From a small group of students to a recognised home for audiences looking for updates about shows, concerts and music adda, SBMFC has continued to grow through the power of community. And this journey is only beginning.</p>
+      </div>
+      <div class="stat-grid reveal">
+        <div class="stat-cell"><div class="num">2019</div><div class="lbl">Founded in Sylhet</div></div>
+        <div class="stat-cell"><div class="num">Community</div><div class="lbl">Built around music lovers</div></div>
+        <div class="stat-cell"><div class="num">Promotion</div><div class="lbl">Supporting shows &amp; artists</div></div>
+        <div class="stat-cell"><div class="num">Growth</div><div class="lbl">Expanding beyond Sylhet</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ JOURNEY TIMELINE ============ -->
+<section class="section-alt" id="journey">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <div class="eyebrow">Our Journey</div>
+      <h2 class="h-display section-title">THE JOURNEY SO FAR.</h2>
+    </div>
+    <div class="timeline">
+
+      <div class="tl-item reveal"><div class="tl-dot"></div>
+        <div class="tl-year">2019</div>
+        <div class="tl-body"><h3>The Beginning</h3>
+        <p>SBMFC begins its journey in June 2019, founded by school students brought together by their passion for music and the Sylhet music scene.</p></div>
+      </div>
+
+      <div class="tl-item reveal"><div class="tl-dot"></div>
+        <div class="tl-year">2020–2021</div>
+        <div class="tl-body"><h3>Building The Community</h3>
+        <p>An audience-driven community begins forming around music updates, shows, discussions and music adda.</p></div>
+      </div>
+
+      <div class="tl-item reveal"><div class="tl-dot"></div>
+        <div class="tl-year">2022–2023</div>
+        <div class="tl-body"><h3>Becoming A Promotional Partner</h3>
+        <p>SBMFC begins working with bands, musical clubs and event organizers, supporting concerts and helping connect events with audiences.</p></div>
+      </div>
+
+      <div class="tl-item reveal"><div class="tl-dot"></div>
+        <div class="tl-year">2024</div>
+        <div class="tl-body"><h3>A Growing Music Network</h3>
+        <p>SBMFC expands its collaborations and becomes increasingly connected with artists, bands and music communities beyond Sylhet.</p></div>
+      </div>
+
+      <div class="tl-item reveal"><div class="tl-dot"></div>
+        <div class="tl-year">2025–2026</div>
+        <div class="tl-body"><h3>Beyond Sylhet</h3>
+        <p>From local concerts to collaborations involving artists and communities from across Bangladesh and beyond, SBMFC continues to expand its musical network.</p></div>
+      </div>
+
+      <div class="tl-item reveal"><div class="tl-dot"></div>
+        <div class="tl-year">2026+</div>
+        <div class="tl-body"><h3>The Next Chapter</h3>
+        <p>We're still building. Still discovering. Still supporting the music.</p></div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ============ SHOWS ============ -->
+<section id="shows">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <div class="eyebrow">Event Archive</div>
+      <h2 class="h-display section-title">SHOWS WE'VE<br>BEEN PART OF.</h2>
+      <p>From intimate music gatherings to high-energy concerts, we've helped connect shows with the audiences who make the scene alive.</p>
+    </div>
+
+    <div class="filter-bar reveal" id="filterBar">
+      <button class="filter-btn active" data-filter="all">All</button>
+      <button class="filter-btn" data-filter="concerts">Concerts</button>
+      <button class="filter-btn" data-filter="rock">Rock</button>
+      <button class="filter-btn" data-filter="clubs">Music Clubs</button>
+      <button class="filter-btn" data-filter="partner">Promotional Partnerships</button>
+      <button class="filter-btn" data-filter="archive">Event Archive</button>
+    </div>
+
+    <div class="poster-grid reveal-stagger" id="posterGrid">
+
+      <!-- 1: Chaos Over Control -->
+      <div class="poster-card" data-cat="concerts rock partner"
+        data-title="Chaos Over Control" data-org="Orpheus — Bolt From The Rock"
+        data-date="08 July 2026" data-venue="M Saifur Rahman Auditorium · Gate Open 02:00 PM"
+        data-artists="Orpheus" data-role="Promotional Partner"
+        data-desc="A high-energy rock concert presented by Orpheus — Bolt From The Rock, with SBMFC on board as promotional partner, helping connect the show with the audiences that make the scene alive."
+        data-img="assets/chaos-over-control.jpg">
+        <div class="poster-media">
+          <img src="assets/chaos-over-control.jpg" alt="Chaos Over Control concert poster" loading="lazy">
+          <div class="glow"></div>
+          <div class="view"><span>View Event</span></div>
+        </div>
+        <div class="poster-tags"><span class="tag tag-partner">Promotional Partner</span></div>
+        <div class="poster-info">
+          <h3>Chaos Over Control</h3>
+          <div class="meta">
+            <span><b>Presented by</b> Orpheus — Bolt From The Rock</span>
+            <span>08 July 2026 · M Saifur Rahman Auditorium</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 2: Waves That Never End -->
+      <div class="poster-card" data-cat="concerts clubs partner"
+        data-title="Waves That Never End" data-org="Flames Musical Club"
+        data-date="Details coming soon" data-venue="Details coming soon"
+        data-artists="Flames Musical Club" data-role="Promotional Partner"
+        data-desc="Presented by Flames Musical Club, with SBMFC as promotional partner. More information available at flamesmusicalclub.com."
+        data-img="assets/waves-that-never-end.jpg">
+        <div class="poster-media">
+          <img src="assets/waves-that-never-end.jpg" alt="Waves That Never End concert poster" loading="lazy">
+          <div class="glow"></div>
+          <div class="view"><span>View Event</span></div>
+        </div>
+        <div class="poster-tags"><span class="tag tag-partner">Promotional Partner</span></div>
+        <div class="poster-info">
+          <h3>Waves That Never End</h3>
+          <div class="meta">
+            <span><b>Presented by</b> Flames Musical Club</span>
+            <span>www.flamesmusicalclub.com</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 3: Ragnarok Unleashed -->
+      <div class="poster-card" data-cat="concerts clubs archive"
+        data-title="Ragnarok Unleashed" data-org="RIM Musical Club"
+        data-date="10 January 2026 · 4:00 PM" data-venue="Central Auditorium, SUST"
+        data-artists="RIM Musical Club" data-role="Event Archive"
+        data-desc="A concert presented by RIM Musical Club, included here as part of SBMFC's event archive."
+        data-img="assets/ragnarok-unleashed.jpg">
+        <div class="poster-media">
+          <img src="assets/ragnarok-unleashed.jpg" alt="Ragnarok Unleashed concert poster" loading="lazy">
+          <div class="glow"></div>
+          <div class="view"><span>View Event</span></div>
+        </div>
+        <div class="poster-tags"><span class="tag tag-archive">Event Archive</span></div>
+        <div class="poster-info">
+          <h3>Ragnarok Unleashed</h3>
+          <div class="meta">
+            <span><b>Presented by</b> RIM Musical Club</span>
+            <span>10 January 2026 · Central Auditorium, SUST</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 4: Breakaway Anthem -->
+      <div class="poster-card" data-cat="archive"
+        data-title="The Breakaway Anthem" data-org="Alpha Community"
+        data-date="Details coming soon" data-venue="Details coming soon"
+        data-artists="Alpha Community" data-role="Event Archive"
+        data-desc="Details coming soon."
+        data-img="assets/breakaway-anthem.jpg">
+        <div class="poster-media">
+          <img src="assets/breakaway-anthem.jpg" alt="The Breakaway Anthem concert poster" loading="lazy">
+          <div class="glow"></div>
+          <div class="view"><span>View Event</span></div>
+        </div>
+        <div class="poster-tags"><span class="tag tag-archive">Event Archive</span></div>
+        <div class="poster-info">
+          <h3>The Breakaway Anthem</h3>
+          <div class="meta"><span><b>By</b> Alpha Community</span></div>
+        </div>
+      </div>
+
+      <!-- 5: Rockvold Odyssey -->
+      <div class="poster-card" data-cat="rock archive"
+        data-title="Rockvold Odyssey" data-org="Flames"
+        data-date="Details coming soon" data-venue="Details coming soon"
+        data-artists="Flames" data-role="Event Archive"
+        data-desc="Details coming soon."
+        data-img="assets/rockvold-odyssey.jpg">
+        <div class="poster-media">
+          <img src="assets/rockvold-odyssey.jpg" alt="Rockvold Odyssey concert poster" loading="lazy">
+          <div class="glow"></div>
+          <div class="view"><span>View Event</span></div>
+        </div>
+        <div class="poster-tags"><span class="tag tag-archive">Event Archive</span></div>
+        <div class="poster-info">
+          <h3>Rockvold Odyssey</h3>
+          <div class="meta"><span><b>By</b> Flames</span></div>
+        </div>
+      </div>
+
+      <!-- 6: Majesty in Mayhem -->
+      <div class="poster-card" data-cat="rock archive"
+        data-title="Majesty In Mayhem" data-org="Orpheus"
+        data-date="Details coming soon" data-venue="Details coming soon"
+        data-artists="Orpheus" data-role="Event Archive"
+        data-desc="Details coming soon."
+        data-img="assets/majesty-in-mayhem.jpg">
+        <div class="poster-media">
+          <img src="assets/majesty-in-mayhem.jpg" alt="Majesty In Mayhem concert poster" loading="lazy">
+          <div class="glow"></div>
+          <div class="view"><span>View Event</span></div>
+        </div>
+        <div class="poster-tags"><span class="tag tag-archive">Event Archive</span></div>
+        <div class="poster-info">
+          <h3>Majesty In Mayhem</h3>
+          <div class="meta"><span><b>By</b> Orpheus</span></div>
+        </div>
+      </div>
+
+      <!-- 7: Legacy Revived -->
+      <div class="poster-card" data-cat="clubs archive"
+        data-title="Legacy Revived" data-org="Flames"
+        data-date="Details coming soon" data-venue="Details coming soon"
+        data-artists="Flames" data-role="Event Archive"
+        data-desc="Details coming soon."
+        data-img="assets/legacy-revived.jpg">
+        <div class="poster-media">
+          <img src="assets/legacy-revived.jpg" alt="Legacy Revived concert poster" loading="lazy">
+          <div class="glow"></div>
+          <div class="view"><span>View Event</span></div>
+        </div>
+        <div class="poster-tags"><span class="tag tag-archive">Event Archive</span></div>
+        <div class="poster-info">
+          <h3>Legacy Revived</h3>
+          <div class="meta"><span><b>By</b> Flames</span></div>
+        </div>
+      </div>
+
+      <!-- 8: The Melodic Fusion -->
+      <div class="poster-card" data-cat="archive"
+        data-title="The Melodic Fusion" data-org="The Banned Community"
+        data-date="Details coming soon" data-venue="Details coming soon"
+        data-artists="The Banned Community" data-role="Event Archive"
+        data-desc="Details coming soon."
+        data-img="assets/melodic-fusion.jpg">
+        <div class="poster-media">
+          <img src="assets/melodic-fusion.jpg" alt="The Melodic Fusion concert poster" loading="lazy">
+          <div class="glow"></div>
+          <div class="view"><span>View Event</span></div>
+        </div>
+        <div class="poster-tags"><span class="tag tag-archive">Event Archive</span></div>
+        <div class="poster-info">
+          <h3>The Melodic Fusion</h3>
+          <div class="meta"><span><b>By</b> The Banned Community</span></div>
+        </div>
+      </div>
+
+    </div>
+    <p class="archive-note reveal">Many more shows, collaborations and music experiences — this archive keeps growing as SBMFC's journey continues.</p>
+  </div>
+</section>
+
+<!-- ============ PARTNERSHIPS ============ -->
+<section class="section-alt" id="partnerships">
+  <div class="wrap">
+    <div class="partner-grid">
+      <div class="partner-copy reveal">
+        <div class="eyebrow">Promotional Partnerships</div>
+        <h2 class="h-display section-title">WE HELP MUSIC<br>FIND ITS AUDIENCE.</h2>
+        <p>Over the years, SBMFC has worked alongside bands, musical clubs, event organizers and artists as a promotional partner — helping bring their shows and music closer to the audiences that matter.</p>
+        <p>Every partnership on this site is clearly marked. A confirmed <b style="color:var(--red)">Promotional Partner</b> credit means the event artwork itself names SBMFC in that role. Everything else is presented honestly as part of our wider <b style="color:var(--off-white)">Event Archive</b>.</p>
+        <a href="#shows" class="btn btn-ghost magnetic" style="margin-top:10px;">View Partnership Archive</a>
+      </div>
+      <div class="partner-visual reveal">
+        <div class="pv-row"><span>Chaos Over Control</span><span style="color:var(--red)">Promotional Partner</span></div>
+        <div class="pv-row"><span>Waves That Never End</span><span style="color:var(--red)">Promotional Partner</span></div>
+        <div class="pv-row"><span>Ragnarok Unleashed</span><span style="color:var(--gray)">Event Archive</span></div>
+        <div class="pv-row"><span>The Breakaway Anthem</span><span style="color:var(--gray)">Event Archive</span></div>
+        <div class="pv-row"><span>Rockvold Odyssey</span><span style="color:var(--gray)">Event Archive</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ WHAT WE DO ============ -->
+<section>
+  <div class="wrap">
+    <div class="section-head reveal">
+      <div class="eyebrow">What We Do</div>
+      <h2 class="h-display section-title">SIX WAYS WE<br>SUPPORT THE SCENE.</h2>
+    </div>
+    <div class="svc-grid reveal-stagger">
+      <div class="svc-card"><div class="svc-num">01</div><h3>Event Promotion</h3><p>Helping concerts and musical events reach the right audience through community-driven promotion.</p></div>
+      <div class="svc-card"><div class="svc-num">02</div><h3>Music Discovery</h3><p>Connecting audiences with new bands, artists, releases and upcoming shows.</p></div>
+      <div class="svc-card"><div class="svc-num">03</div><h3>Community Building</h3><p>Creating a space where music lovers can stay connected and share the experience.</p></div>
+      <div class="svc-card"><div class="svc-num">04</div><h3>Show Updates</h3><p>Keeping audiences informed about concerts, events and activities across the music scene.</p></div>
+      <div class="svc-card"><div class="svc-num">05</div><h3>Artist &amp; Band Support</h3><p>Helping emerging and established artists gain visibility within the community.</p></div>
+      <div class="svc-card"><div class="svc-num">06</div><h3>Music Adda</h3><p>Encouraging conversations, connections and the culture that grows around music.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ NETWORK ============ -->
+<section class="section-alt">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <div class="eyebrow">Our Network</div>
+      <h2 class="h-display section-title">FROM SYLHET TO<br>A WIDER STAGE.</h2>
+      <p>What started in Sylhet gradually grew into a wider network of music communities, artists, bands and organizers.</p>
+    </div>
+    <div class="network-track reveal-stagger">
+      <div class="network-cell"><div class="n-top">2019</div><div class="n-bot">Our Beginning</div></div>
+      <div class="network-cell"><div class="n-top">Sylhet</div><div class="n-bot">Our Home</div></div>
+      <div class="network-cell"><div class="n-top">Bangladesh</div><div class="n-bot">Our Growing Network</div></div>
+      <div class="network-cell"><div class="n-top">Beyond</div><div class="n-bot">Our Next Horizon</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ ARTISTS & BANDS ============ -->
+<section id="artists">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <div class="eyebrow">Artists &amp; Bands</div>
+      <h2 class="h-display section-title">FACES FROM<br>THE ARCHIVE.</h2>
+      <p>The names below appear as part of SBMFC's event and collaboration archive. They are shown here as documented connections, not claims of ongoing or exclusive partnership unless separately confirmed.</p>
+    </div>
+    <div class="artist-grid reveal-stagger">
+      <div class="artist-cell"><span>Orpheus</span></div>
+      <div class="artist-cell"><span>Flames</span></div>
+      <div class="artist-cell"><span>Alpha Community</span></div>
+      <div class="artist-cell"><span>The Banned Community</span></div>
+      <div class="artist-cell"><span>RIM Musical Club</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ MUSIC ADDA ============ -->
+<section class="adda">
+  <div class="wrap">
+    <div class="eyebrow" style="justify-content:center;">The Music Adda</div>
+    <h2 class="h-display">BECAUSE THE MUSIC<br>DOESN'T STOP.</h2>
+    <p class="sub">When the show ends</p>
+    <div class="adda-list reveal-stagger">
+      <span>Upcoming Concerts</span>
+      <span>Band Updates</span>
+      <span>Music Discussions</span>
+      <span>Show Announcements</span>
+      <span>New Releases</span>
+      <span>Community Conversations</span>
+    </div>
+    <div class="adda-eq">
+      <span style="height:30%;animation-delay:-1.2s"></span>
+      <span style="height:70%;animation-delay:-1s"></span>
+      <span style="height:45%;animation-delay:-.8s"></span>
+      <span style="height:90%;animation-delay:-.6s"></span>
+      <span style="height:55%;animation-delay:-.4s"></span>
+      <span style="height:80%;animation-delay:-.2s"></span>
+      <span style="height:40%;animation-delay:0s"></span>
+      <span style="height:65%;animation-delay:-.9s"></span>
+      <span style="height:35%;animation-delay:-.5s"></span>
+    </div>
+  </div>
+</section>
+
+<!-- ============ GALLERY ============ -->
+<section class="section-alt" id="gallery">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <div class="eyebrow">Gallery</div>
+      <h2 class="h-display section-title">THE ARCHIVE<br>IN FRAMES.</h2>
+    </div>
+    <div class="gal-cats reveal">
+      <button class="filter-btn active" data-gcat="all">All</button>
+      <button class="filter-btn" data-gcat="shows">Shows</button>
+      <button class="filter-btn" data-gcat="posters">Posters</button>
+      <button class="filter-btn" data-gcat="artists">Artists</button>
+      <button class="filter-btn" data-gcat="audience">Audience</button>
+      <button class="filter-btn" data-gcat="bts">Behind The Scenes</button>
+      <button class="filter-btn" data-gcat="adda">Music Adda</button>
+    </div>
+    <div class="gallery-grid reveal-stagger" id="galleryGrid">
+      <div class="g-item tall" data-gcat="posters"><img src="assets/chaos-over-control.jpg" alt="Chaos Over Control poster" loading="lazy"><div class="g-cap">Chaos Over Control — Poster</div></div>
+      <div class="g-item" data-gcat="posters"><img src="assets/waves-that-never-end.jpg" alt="Waves That Never End poster" loading="lazy"><div class="g-cap">Waves That Never End — Poster</div></div>
+      <div class="g-item wide" data-gcat="posters"><img src="assets/ragnarok-unleashed.jpg" alt="Ragnarok Unleashed poster" loading="lazy"><div class="g-cap">Ragnarok Unleashed — Poster</div></div>
+      <div class="g-item" data-gcat="shows"><img src="assets/gallery-01.jpg" alt="Live show photo placeholder" loading="lazy"><div class="g-cap">Live Show — Coming Soon</div></div>
+      <div class="g-item" data-gcat="audience"><img src="assets/gallery-02.jpg" alt="Audience photo placeholder" loading="lazy"><div class="g-cap">Audience — Coming Soon</div></div>
+      <div class="g-item tall" data-gcat="bts"><img src="assets/gallery-03.jpg" alt="Behind the scenes photo placeholder" loading="lazy"><div class="g-cap">Behind The Scenes — Coming Soon</div></div>
+      <div class="g-item" data-gcat="adda"><img src="assets/gallery-04.jpg" alt="Music adda photo placeholder" loading="lazy"><div class="g-cap">Music Adda — Coming Soon</div></div>
+      <div class="g-item" data-gcat="artists"><img src="assets/gallery-05.jpg" alt="Artist photo placeholder" loading="lazy"><div class="g-cap">Artists — Coming Soon</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ FEATURED STORY ============ -->
+<section class="story">
+  <div class="wrap">
+    <div class="eyebrow reveal" style="justify-content:center;">Featured Story</div>
+    <h2 class="h-display reveal">FROM NOTHING TO A<br>HOME FOR THE AUDIENCE.</h2>
+    <p class="reveal">SBMFC didn't begin with a stage, a production team or a large organization behind it.</p>
+    <p class="reveal">It began with students, music and a shared curiosity about what was happening in the scene.</p>
+    <p class="reveal">Years later, that same curiosity has grown into a community — a place where audiences come to find out what's happening next, where concerts are discovered, and where artists and organizers can reach the people who care.</p>
+    <p class="reveal">A place built around music.</p>
+  </div>
+</section>
+
+<!-- ============ WHY SBMFC ============ -->
+<section class="section-alt">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <div class="eyebrow">Why SBMFC</div>
+      <h2 class="h-display section-title">BUILT BY FANS.<br>TRUSTED BY THE SCENE.</h2>
+    </div>
+    <div class="pillars reveal-stagger">
+      <div class="pillar"><h3>Authentic</h3><p>We started as music lovers — and that remains at the heart of everything we do.</p></div>
+      <div class="pillar"><h3>Connected</h3><p>We bring audiences, artists, bands and organizers closer together.</p></div>
+      <div class="pillar"><h3>Growing</h3><p>Our journey started in Sylhet. Our ambition reaches much further.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ CTA ============ -->
+<section class="cta-section">
+  <div class="wrap">
+    <h2 class="h-display reveal">GOT A SHOW<br>TO SHARE?</h2>
+    <p class="reveal">Planning a concert, launching a music project or bringing a new sound to the audience? Let's put it in front of the people who care.</p>
+    <div class="cta-actions reveal">
+      <a href="#contact" class="btn btn-solid magnetic">Work With SBMFC</a>
+      <a href="#contact" class="btn btn-ghost magnetic">Contact Us</a>
+    </div>
+  </div>
+</section>
+
+<!-- ============ CONTACT ============ -->
+<section id="contact">
+  <div class="wrap">
+    <div class="contact-grid">
+      <div class="contact-left reveal">
+        <div class="eyebrow">Contact</div>
+        <h2 class="h-display">SBMFC</h2>
+        <p style="color:var(--gray);font-size:13px;letter-spacing:.1em;text-transform:uppercase;margin-bottom:20px;">Sylhet Band Music Fans Community</p>
+        <p class="line">"Music connects us."</p>
+        <div class="contact-links">
+          <a href="#"><span>Facebook</span><span>@sbmfc &mdash; add link</span></a>
+          <a href="#"><span>Instagram</span><span>@sbmfc &mdash; add link</span></a>
+          <a href="#"><span>YouTube</span><span>SBMFC &mdash; add link</span></a>
+          <a href="mailto:hello@sbmfc.example"><span>Email</span><span>hello@sbmfc.example</span></a>
+          <a href="tel:+8800000000"><span>Phone</span><span>+880 XXX XXX XXXX</span></a>
+        </div>
+      </div>
+      <form class="contact-form reveal" onsubmit="event.preventDefault(); this.reset(); alert('Thanks — placeholder form. Connect this to your email or form service.');">
+        <input type="text" placeholder="Your name" required>
+        <input type="email" placeholder="Your email" required>
+        <input type="text" placeholder="Subject — e.g. Promotional partnership request">
+        <textarea placeholder="Tell us about your show, project or idea..." required></textarea>
+        <button type="submit" class="btn btn-solid magnetic" style="width:fit-content;">Send Message</button>
+      </form>
+    </div>
+  </div>
+</section>
+
+<!-- ============ FOOTER ============ -->
+<footer>
+  <div class="wrap">
+    <div class="footer-top">
+      <div class="footer-brand">
+        <img src="assets/logo.png" alt="SBMFC logo">
+        <div class="footer-brand-text">From the crowd<br>to the culture.</div>
+      </div>
+      <ul class="footer-nav">
+        <li><a href="#home">Home</a></li>
+        <li><a href="#story">Our Story</a></li>
+        <li><a href="#journey">Our Journey</a></li>
+        <li><a href="#shows">Shows</a></li>
+        <li><a href="#partnerships">Partnerships</a></li>
+        <li><a href="#artists">Artists &amp; Bands</a></li>
+        <li><a href="#gallery">Gallery</a></li>
+        <li><a href="#contact">Contact</a></li>
+      </ul>
+      <div class="footer-social">
+        <a href="#" aria-label="Facebook">FB</a>
+        <a href="#" aria-label="Instagram">IG</a>
+        <a href="#" aria-label="YouTube">YT</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>&copy; 2019&ndash;2026 SBMFC — Sylhet Band Music Fans Community</span>
+      <span>Still listening. Still discovering. Still growing.</span>
+    </div>
+  </div>
+</footer>
+
+<!-- ============ EVENT MODAL ============ -->
+<div class="modal-backdrop" id="modalBackdrop">
+  <div class="modal">
+    <div class="modal-media"><img id="modalImg" src="" alt=""></div>
+    <div class="modal-body">
+      <button class="modal-close" id="modalClose" aria-label="Close">&times;</button>
+      <div class="eyebrow" id="modalTag">Event</div>
+      <h3 id="modalTitle">Event Name</h3>
+      <div class="modal-field"><span>Organizer</span><span id="modalOrg">—</span></div>
+      <div class="modal-field"><span>Date</span><span id="modalDate">—</span></div>
+      <div class="modal-field"><span>Venue</span><span id="modalVenue">—</span></div>
+      <div class="modal-field"><span>Artists</span><span id="modalArtists">—</span></div>
+      <div class="modal-field"><span>SBMFC Involvement</span><span id="modalRole">—</span></div>
+      <p class="modal-desc" id="modalDesc"></p>
+      <a href="#shows" class="btn btn-ghost magnetic modal-back" id="modalBack">Back To Archive</a>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ---------- Nav scroll state ---------- */
+const nav = document.getElementById('nav');
+window.addEventListener('scroll', () => {
+  nav.classList.toggle('scrolled', window.scrollY > 40);
+}, {passive:true});
+
+/* ---------- Mobile menu ---------- */
+const navToggle = document.getElementById('navToggle');
+const mobileMenu = document.getElementById('mobileMenu');
+navToggle.addEventListener('click', () => {
+  mobileMenu.classList.toggle('open');
+  navToggle.classList.toggle('active');
+});
+mobileMenu.querySelectorAll('a').forEach(a => a.addEventListener('click', () => mobileMenu.classList.remove('open')));
+
+/* ---------- Cursor glow (desktop only) ---------- */
+const glow = document.getElementById('cursorGlow');
+if (window.matchMedia('(hover:hover) and (pointer:fine)').matches){
+  window.addEventListener('mousemove', e => {
+    glow.style.left = e.clientX + 'px';
+    glow.style.top = e.clientY + 'px';
+  }, {passive:true});
+} else {
+  glow.style.display = 'none';
+}
+
+/* ---------- Magnetic buttons ---------- */
+document.querySelectorAll('.magnetic').forEach(btn => {
+  btn.addEventListener('mousemove', e => {
+    const r = btn.getBoundingClientRect();
+    const x = e.clientX - r.left - r.width/2;
+    const y = e.clientY - r.top - r.height/2;
+    btn.style.transform = `translate(${x*0.18}px, ${y*0.35}px)`;
+  });
+  btn.addEventListener('mouseleave', () => { btn.style.transform = 'translate(0,0)'; });
+});
+
+/* ---------- Scroll reveal ---------- */
+const io = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting){
+      entry.target.classList.add('in');
+      io.unobserve(entry.target);
+    }
+  });
+}, {threshold:.15});
+document.querySelectorAll('.reveal, .reveal-stagger').forEach(el => io.observe(el));
+
+/* ---------- Missing image detection -> placeholder styling ---------- */
+document.querySelectorAll('img[loading="lazy"], .hero-logo, .nav-logo img, .footer-brand img').forEach(img => {
+  img.addEventListener('error', () => {
+    const card = img.closest('.poster-card, .g-item');
+    if (card) card.classList.add('img-missing');
+  });
+});
+
+/* ---------- Show filter ---------- */
+const filterBtns = document.querySelectorAll('#filterBar .filter-btn');
+const posterCards = document.querySelectorAll('.poster-card');
+filterBtns.forEach(btn => {
+  btn.addEventListener('click', () => {
+    filterBtns.forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    const f = btn.dataset.filter;
+    posterCards.forEach(card => {
+      const cats = card.dataset.cat.split(' ');
+      const show = f === 'all' || cats.includes(f);
+      card.classList.toggle('hide', !show);
+    });
+  });
+});
+
+/* ---------- Gallery filter ---------- */
+const gBtns = document.querySelectorAll('.gal-cats .filter-btn');
+const gItems = document.querySelectorAll('#galleryGrid .g-item');
+gBtns.forEach(btn => {
+  btn.addEventListener('click', () => {
+    gBtns.forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    const f = btn.dataset.gcat;
+    gItems.forEach(item => {
+      item.style.display = (f === 'all' || item.dataset.gcat === f) ? '' : 'none';
+    });
+  });
+});
+
+/* ---------- Event modal ---------- */
+const modalBackdrop = document.getElementById('modalBackdrop');
+const modalImg = document.getElementById('modalImg');
+const modalTitle = document.getElementById('modalTitle');
+const modalOrg = document.getElementById('modalOrg');
+const modalDate = document.getElementById('modalDate');
+const modalVenue = document.getElementById('modalVenue');
+const modalArtists = document.getElementById('modalArtists');
+const modalRole = document.getElementById('modalRole');
+const modalDesc = document.getElementById('modalDesc');
+const modalTag = document.getElementById('modalTag');
+
+function fillOrDefault(val){ return (val && val.trim().length) ? val : 'Details coming soon.'; }
+
+posterCards.forEach(card => {
+  card.addEventListener('click', () => {
+    modalImg.src = card.dataset.img;
+    modalImg.alt = card.dataset.title;
+    modalTitle.textContent = card.dataset.title;
+    modalOrg.textContent = fillOrDefault(card.dataset.org);
+    modalDate.textContent = fillOrDefault(card.dataset.date);
+    modalVenue.textContent = fillOrDefault(card.dataset.venue);
+    modalArtists.textContent = fillOrDefault(card.dataset.artists);
+    modalRole.textContent = fillOrDefault(card.dataset.role);
+    modalDesc.textContent = fillOrDefault(card.dataset.desc);
+    modalTag.textContent = card.dataset.role === 'Promotional Partner' ? 'Confirmed Promotional Partner' : 'Event Archive';
+    modalBackdrop.classList.add('open');
+    document.body.style.overflow = 'hidden';
+  });
+});
+function closeModal(){
+  modalBackdrop.classList.remove('open');
+  document.body.style.overflow = '';
+}
+document.getElementById('modalClose').addEventListener('click', closeModal);
+document.getElementById('modalBack').addEventListener('click', (e) => { e.preventDefault(); closeModal(); });
+modalBackdrop.addEventListener('click', (e) => { if (e.target === modalBackdrop) closeModal(); });
+document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeModal(); });
+</script>
+</body>
+</html>
